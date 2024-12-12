@@ -11,3 +11,6 @@ __MACOSX/
 *.jpg
 *.svo
 *.png
+rlgpu_venv/
+teleop/isaacgym/
+teleop/pip
