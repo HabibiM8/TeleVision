@@ -26,3 +26,4 @@ chmod +x ZED_SDK_Ubuntu20_cuda12.1_v4.2.2.zstd.run
 ./ZED_SDK_Ubuntu20_cuda12.1_v4.2.2.zstd.run
 
 
+check if cam works on ~/usr/local/zed/tools   and then Diagnostics or Explorer
