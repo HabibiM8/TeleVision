@@ -16,8 +16,9 @@ import torch
 from torchvision.transforms import v2
 from sklearn.decomposition import PCA
 
+
 class Player:
-    def __init__(self, dt=1/60):
+    def __init__(self, dt=1 / 60):
         self.dt = dt
         self.head_mat = None
         self.left_wrist_mat = None
@@ -57,6 +58,9 @@ class Player:
 
         robot_asset_root = "../assets"
         robot_asset_file = 'h1_inspire/urdf/h1_inspire.urdf'
+
+        asset_options = gymapi.AssetOptions()
+
         asset_options.fix_base_link = True
         asset_options.default_dof_drive_mode = gymapi.DOF_MODE_POS
         robot_asset = self.gym.load_asset(self.sim, robot_asset_root, robot_asset_file, asset_options)
@@ -91,7 +95,7 @@ class Player:
         plt.figure(figsize=(12, 6))
         plt.ion()
 
-    def step(self, action, left_img, right_img):
+    def step(self, action):#, left_img, right_img):
         qpos = self.convert_h1_qpos(action)
         states = np.zeros(qpos.shape, dtype=gymapi.DofState.dtype)
         states['pos'] = qpos
@@ -100,7 +104,7 @@ class Player:
         # step the physics
         self.gym.simulate(self.sim)
         self.gym.step_graphics(self.sim)
-
+        """
         left_img = left_img.transpose((1, 2, 0))
         right_img = right_img.transpose((1, 2, 0))
         img = np.concatenate((left_img, right_img), axis=1)
@@ -109,7 +113,7 @@ class Player:
         plt.title('VisionPro View')
         plt.imshow(img, aspect='equal')
         plt.pause(0.001)
-
+        """
         self.gym.draw_viewer(self.viewer, self.sim, True)
         self.gym.sync_frame_time(self.sim)
 
@@ -148,27 +152,15 @@ class Player:
 
         return qpos
 
+
 if __name__ == '__main__':
 
-    root = "../data/recordings/"
-    # folder_name = "00-coke_can_insert-2024_05_26-23_50_58/processed"
-    folder_name = "00-can-sorting/processed"
-    episode_name = "processed_episode_0.hdf5"
-    episode_path = Path(root) / folder_name / episode_name
+    player = Player(1 / 30)
+    fake_actions = [0]*26
 
-    data = h5py.File(str(episode_path), 'r')
-    actions = np.array(data['qpos_action'])[::2]
-    left_imgs = np.array(data['observation.image.left'])[::2]  # 30hz
-    right_imgs = np.array(data['observation.image.right'])[::2]
-    data.close()
-
-    timestamps = actions.shape[0]
-
-    player = Player(1/30)
-    
     try:
-        for t in tqdm(range(timestamps)):
-            player.step(actions[t], left_imgs[t, :], right_imgs[t, :])
+        for t in tqdm(range(10000)):
+            player.step(fake_actions)#, left_imgs[t, :], right_imgs[t, :])
     except KeyboardInterrupt:
         player.end()
         exit()
